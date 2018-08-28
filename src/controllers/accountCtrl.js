@@ -1,5 +1,6 @@
 const path = require("path");
 const MongoClient = require("mongodb").MongoClient;
+var captchapng = require('captchapng');
 // Connection URL
 const url = "mongodb://localhost:27017";
 
@@ -68,3 +69,64 @@ exports.register = (req, res) => {
     }
   );
 };
+//图片验证码
+
+/**
+ * 最终处理，返回图片验证码
+ */
+exports.getVcodeImage = (req,res) => {
+    const vcode = parseInt(Math.random() * 9000 + 1000);
+  
+    // 把刚刚随机生成的验证码，存储到session中
+    req.session.vcode = vcode;
+  
+    var p = new captchapng(80, 30, vcode); // width,height,numeric captcha
+    p.color(0, 0, 0, 0); // First color: background (red, green, blue, alpha)
+    p.color(80, 80, 80, 255); // Second color: paint (red, green, blue, alpha)
+  
+    var img = p.getBase64();
+    var imgbase64 = new Buffer(img, "base64");
+    res.writeHead(200, {
+      "Content-Type": "image/png"
+    });
+    res.end(imgbase64);
+  };
+
+//登录处理
+
+exports.login=(req,res)=>{
+    const result = { status: 0, message: "登录成功" }
+
+    if(req.body.vcode != req.session.vcode){
+        result.status = 1;
+        result.message = "验证码不正确";
+        res.json(result)
+        return
+    }
+    MongoClient.connect(
+        url,
+        { useNewUrlParser: true },
+        function(err, client) {
+          // 拿到了数据操作的db对象
+          const db = client.db(dbName);
+          // 拿到集合
+          const collection = db.collection("accountInfo");
+    
+          // 先根据用户名查询
+          collection.findOne({username:req.body.username,password:req.body.password}, (err, doc) => {
+            if (doc==null) {
+              //用户名存在
+              // 关掉和数据库的连接
+              client.close();
+    
+              // 更改返回的状态
+              result.status = 2;
+              result.message = "用户名或密码错误";
+             
+            } 
+            res.json(result);
+          });
+        }
+      );
+
+}
