@@ -59,12 +59,9 @@
     function register(){
         window.location.href = "/account/register"
     }
-    // 点击图片再次获取验证码
-    $("#vcodeimgId").click(function(){
-        $("#vcodeimgId").attr('src',`/account/vcode?randomId=${Math.random()}`)
-    })
-    // 登录
-    function login(){
+    // 点;
+    
+       function login(){
         var username = $("#usernameId").val()
         var password = md5($("#passwordId").val()+"!@#ZZZ-_-")
         var vcode = $("#vcodeId").val()
