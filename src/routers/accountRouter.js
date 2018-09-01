@@ -29,7 +29,7 @@ accountRouter.get('/vcode',accountCTRL.getVcodeImage)
 accountRouter.post('/login',accountCTRL.login)
 
 //导出
-
+accountRouter.get('/logout',accountCTRL.logout)
 module.exports =accountRouter
 
 

@@ -159,10 +159,20 @@ exports.login=(req,res)=>{
             result.status = 2;
             result.message = "用户名或密码错误";
                  
+          }else{
+            //登陆成功
+            req.session.loginedName = req.body.username
           } 
           res.json(result)
 
     })
+  }
+  //登出处理
+
+  exports.logout =(req,res)=>{
+    req.session.loginedName = null
+
+    res.send(`<script>location.href="/account/login"</script>`)
   }
     // MongoClient.connect(
     //     url,
